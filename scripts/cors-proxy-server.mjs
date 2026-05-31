@@ -63,9 +63,12 @@ const HOP_BY_HOP_HEADERS = new Set([
 // SECURITY: local CORS proxies are a common footgun. Even if bound to localhost,
 // a browser tab on any origin can still call it unless we restrict CORS.
 // Default allowlist matches our dev + hosted origins; override via env var.
+// for DEFAULT_ALLOWED_ORIGINS, add pi-for-excel-intertek.vercel.app and  pi4excelproxy.intertekchina.com:4004 (by Jim Wang 2026-05-31)
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   "https://localhost:3000",
   "https://pi-for-excel.vercel.app",
+  "https://pi-for-excel-intertek.vercel.app",
+  "https://pi4excelproxy.intertekchina.com:4004",
 ]);
 
 const allowedOrigins = (() => {
@@ -117,6 +120,10 @@ const DEFAULT_ALLOWED_TARGET_HOSTS = new Set([
   "google.serper.dev",
   "api.tavily.com",
   "api.search.brave.com",
+  // added by Jim Wang 2026-05-31, deepseek and intertek CHN LLM providers
+  "api.deepseek.com",
+  "10.97.193.77",
+  "10.97.193.77:4000",
 ]);
 
 const allowAllTargetHosts = envFlag("ALLOW_ALL_TARGET_HOSTS");
@@ -265,7 +272,7 @@ const handler = async (req, res) => {
     console.warn(`[proxy] blocked non-loopback client: ${remote || "unknown"}`);
     return;
   }
-
+/** remark by Jim Wang 2026-05-31, to avoid "blocked request from disallowed origin: (none)" when Nigin - proxy
   const origin = req.headers.origin;
   if (!isAllowedOrigin(origin)) {
     res.statusCode = 403;
@@ -274,7 +281,17 @@ const handler = async (req, res) => {
     console.warn(`[proxy] blocked request from disallowed origin: ${origin || "(none)"}`);
     return;
   }
-
+*/
+  /*start adding by Jim Wang 20260530*/
+const origin = req.headers.origin;
+if (origin && !isAllowedOrigin(origin)) {
+  res.statusCode = 403;
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.end("forbidden");
+  console.warn(`[proxy] blocked request from disallowed origin: ${origin}`);
+  return;
+}
+/*end of adding by Jim Wang 20260530*/
   setCorsHeaders(req, res);
 
   if (req.method === "OPTIONS") {

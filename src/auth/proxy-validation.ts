@@ -6,8 +6,9 @@
  * "Load failed" / "Connection error".
  */
 
-export const DEFAULT_LOCAL_PROXY_URL = "https://localhost:3003";
-
+//added by Jim Wang 20260531
+// export const DEFAULT_LOCAL_PROXY_URL = "https://localhost:3003";
+export const DEFAULT_LOCAL_PROXY_URL = "https://pi4excelproxy.intertekchina.com:4004";
 /**
  * Target URL used for proxy reachability probes.
  *

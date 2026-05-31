@@ -186,22 +186,23 @@ export interface ProviderDef {
 }
 
 export const ALL_PROVIDERS: ProviderDef[] = [
-  // OAuth providers first (subscription / account-based flows)
-  // Only list flows that are supported in-browser (PKCE/manual paste, no local callback server).
-  { id: "anthropic",          label: "Anthropic",                oauth: "anthropic",          desc: "Claude Pro/Max" },
-  { id: "openai-codex",       label: "OpenAI (ChatGPT)",         oauth: "openai-codex",       desc: "Plus/Pro subscription" },
-  { id: "google-gemini-cli",  label: "Google Code Assist",       oauth: "google-gemini-cli",  desc: "Gemini via Google account" },
-  { id: "google-antigravity", label: "Google Antigravity",       oauth: "google-antigravity", desc: "Gemini/Claude/GPT-OSS" },
-  { id: "github-copilot",     label: "GitHub Copilot",           oauth: "github-copilot" },
+  //// OAuth providers first (subscription / account-based flows)
+  //// Only list flows that are supported in-browser (PKCE/manual paste, no local callback server).
+  //// Remark by Jim, limited AI platform in china
+//  { id: "anthropic",          label: "Anthropic",                oauth: "anthropic",          desc: "Claude Pro/Max" },
+//  { id: "openai-codex",       label: "OpenAI (ChatGPT)",         oauth: "openai-codex",       desc: "Plus/Pro subscription" },
+//  { id: "google-gemini-cli",  label: "Google Code Assist",       oauth: "google-gemini-cli",  desc: "Gemini via Google account" },
+//  { id: "google-antigravity", label: "Google Antigravity",       oauth: "google-antigravity", desc: "Gemini/Claude/GPT-OSS" },
+//  { id: "github-copilot",     label: "GitHub Copilot",           oauth: "github-copilot" },
 
-  // API key providers
-  { id: "openai",             label: "OpenAI (API)",             desc: "API key" },
-  { id: "google",             label: "Google Gemini (API)",      desc: "API key" },
+  //// API key providers
+//  { id: "openai",             label: "OpenAI (API)",             desc: "API key" },
+//  { id: "google",             label: "Google Gemini (API)",      desc: "API key" },
   { id: "deepseek",           label: "DeepSeek" },
-  { id: "amazon-bedrock",     label: "Amazon Bedrock" },
-  { id: "mistral",            label: "Mistral" },
-  { id: "groq",               label: "Groq" },
-  { id: "xai",                label: "xAI / Grok" },
+//  { id: "amazon-bedrock",     label: "Amazon Bedrock" },
+//  { id: "mistral",            label: "Mistral" },
+//  { id: "groq",               label: "Groq" },
+//  { id: "xai",                label: "xAI / Grok" },
 ];
 
 export interface ProviderRowCallbacks {

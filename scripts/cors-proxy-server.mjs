@@ -42,12 +42,21 @@ if (useHttps && useHttp) {
   process.exit(1);
 }
 
-const HOST = process.env.HOST || (useHttps ? "localhost" : "127.0.0.1");
+////use *.companyname.com to instead of localhost, added by Jim
+//const HOST = process.env.HOST || (useHttps ? "localhost" : "127.0.0.1");
+const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number.parseInt(process.env.PORT || "3003", 10);
 
+/*Remarked by Jim 20260531*
 const rootDir = path.resolve(process.cwd());
 const keyPath = path.join(rootDir, "key.pem");
 const certPath = path.join(rootDir, "cert.pem");
+*/
+//added by Jim 20260531
+const rootDir = path.resolve(process.cwd());
+const keyPath = process.env.SSL_KEY_PATH || path.join(rootDir, "_.intertekchina.com_RSA.key");
+const certPath = process.env.SSL_CERT_PATH || path.join(rootDir, "_.intertekchina.com_bundle.pem");
+
 
 const HOP_BY_HOP_HEADERS = new Set([
   "connection",
@@ -63,12 +72,12 @@ const HOP_BY_HOP_HEADERS = new Set([
 // SECURITY: local CORS proxies are a common footgun. Even if bound to localhost,
 // a browser tab on any origin can still call it unless we restrict CORS.
 // Default allowlist matches our dev + hosted origins; override via env var.
-// for DEFAULT_ALLOWED_ORIGINS, add pi-for-excel-intertek.vercel.app and  pi4excelproxy.intertekchina.com:4004 (by Jim Wang 2026-05-31)
+// for DEFAULT_ALLOWED_ORIGINS, add pi-for-excel-intertek.vercel.app and  pi4excelproxy.intertekchina.com:3003 (by Jim Wang 2026-05-31)
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   "https://localhost:3000",
   "https://pi-for-excel.vercel.app",
   "https://pi-for-excel-intertek.vercel.app",
-  "https://pi4excelproxy.intertekchina.com:4004",
+  "https://pi4excelproxy.intertekchina.com:3003",
 ]);
 
 const allowedOrigins = (() => {
@@ -94,7 +103,38 @@ function isLoopbackAddress(addr) {
   if (addr.startsWith("::ffff:127.")) return true;
   return false;
 }
-
+/**
+ * Check if IP is in allowed internal ranges using CIDR notation
+ */
+ //added by Jim 20260531
+function isAllowedInternalIP(addr) {
+  if (!addr) return false;
+  
+  const cleanAddr = addr.replace(/^::ffff:/, "");
+  
+  const ipToInt = (ip) => {
+    const parts = ip.split('.').map(Number);
+    if (parts.length !== 4 || parts.some(isNaN)) return null;
+    return (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
+  };
+  
+  const inRange = (ip, cidr) => {
+    const [range, bits] = cidr.split('/');
+    const mask = ~(2 ** (32 - parseInt(bits)) - 1);
+    const ipInt = ipToInt(ip);
+    const rangeInt = ipToInt(range);
+    if (ipInt === null || rangeInt === null) return false;
+    return (ipInt & mask) === (rangeInt & mask);
+  };
+  
+  const allowedRanges = [
+    '10.96.0.0/13',   // 10.96.0.0 - 10.103.255.255
+    '10.127.0.0/16',  // 10.127.0.0 - 10.127.255.255
+  ];
+  
+  return allowedRanges.some(range => inRange(cleanAddr, range));
+}
+//end adding by Jim
 function envFlag(name) {
   const raw = process.env[name];
   return raw === "1" || raw === "true";
@@ -265,11 +305,21 @@ function buildOutboundHeaders(inHeaders) {
 
 const handler = async (req, res) => {
   const remote = req.socket?.remoteAddress;
+  /*remarked by Jim 2025-05-31*
   if (!isLoopbackAddress(remote)) {
     res.statusCode = 403;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.end("forbidden");
     console.warn(`[proxy] blocked non-loopback client: ${remote || "unknown"}`);
+    return;
+  }
+  */
+  //added by Jim 20250531 allow loopback or lan IP
+  if (!isLoopbackAddress(remote) && !isAllowedInternalIP(remote)) {
+    res.statusCode = 403;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end("forbidden");
+    console.warn(`[proxy] blocked non-allowed client: ${remote || "unknown"}`);
     return;
   }
 /** remark by Jim Wang 2026-05-31, to avoid "blocked request from disallowed origin: (none)" when Nigin - proxy
@@ -436,11 +486,40 @@ const server = (() => {
     return http.createServer(handler);
   }
 
+/*remark by Jim* 2026-05-31
   if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
     console.error("[pi-for-excel] HTTPS requested but key.pem/cert.pem not found in repo root.");
     console.error("Generate them with mkcert (see README). Example: mkcert localhost");
     process.exit(1);
   }
+*/
+//added by Jim on 2026-05-31
+// print cert path
+console.log("[pi-for-excel] Certificate paths:");
+console.log(`  Key:  ${keyPath}`);
+console.log(`  Cert: ${certPath}`);
+
+// checking cert is existing or NOT
+if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+  console.error("\n[pi-for-excel] ERROR: HTTPS requested but certificate files not found.");
+  console.error("\nSearched paths:");
+  console.error(`  Key:  ${keyPath} ${fs.existsSync(keyPath) ? '✓' : '✗ NOT FOUND'}`);
+  console.error(`  Cert: ${certPath} ${fs.existsSync(certPath) ? '✓' : '✗ NOT FOUND'}`);
+  console.error("\nSolutions:");
+  console.error("  1. Set environment variables:");
+  console.error("     set SSL_KEY_PATH=D:\\path\\to\\your.key");
+  console.error("     set SSL_CERT_PATH=D:\\path\\to\\your.crt");
+  console.error("\n  2. Or copy your certificate files to:");
+  console.error(`     ${rootDir}\\key.pem`);
+  console.error(`     ${rootDir}\\cert.pem`);
+  console.error("\n  3. Or generate self-signed certificates:");
+  console.error("     npm install -g mkcert");
+  console.error("     mkcert -install");
+  console.error("     mkcert localhost 127.0.0.1 ::1");
+  process.exit(1);
+}
+
+console.log("[pi-for-excel] Certificate files found ✓\n");
 
   return https.createServer(
     {

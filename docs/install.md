@@ -8,7 +8,7 @@ No coding or dev tools required — just download one file and add it to Excel.
 
 Download this file and save it somewhere you can find it (e.g. your Desktop):
 
-👉 **[manifest.prod.xml](https://pi-for-excel.vercel.app/manifest.prod.xml)**
+👉 **[manifest.prod.xml](https://pi-for-excel-Intertek.vercel.app/manifest.prod.xml)**
 
 <details>
 <summary>Alternate download links (if the above is unavailable)</summary>
@@ -22,60 +22,46 @@ Download this file and save it somewhere you can find it (e.g. your Desktop):
 
 ## 2) Add it to Excel
 
-### macOS
-
-1. Open Finder and press **Cmd + Shift + G** (Go to Folder)
-2. Paste this path and press Enter:
-   ```
-   ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef
-   ```
-3. Copy `manifest.prod.xml` into that folder
-4. Quit Excel completely (Cmd + Q) and reopen it
-5. Go to **Insert → My Add-ins** — you should see **Pi for Excel** listed. Click it to register the add-in.
-6. Now look for the **Add-ins** button on the far right of the **Home** ribbon tab (it looks like four orange squares). Click it, then click **Pi for Excel** to open the sidebar.
-
-   <img src="../public/assets/add-ins-button.png" width="200" alt="Add-ins button in the Home ribbon tab" />
-   <img src="../public/assets/add-ins-dropdown.png" width="200" alt="Pi for Excel in the Add-ins dropdown" />
-
-> **Folder doesn't exist?** Create it first — open Terminal and run:
-> ```bash
-> mkdir -p ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef
-> ```
-> Then repeat from step 3.
-
-For more detail, see [Microsoft's guide for Mac](https://learn.microsoft.com/en-us/office/dev/add-ins/testing/sideload-an-office-add-in-on-mac).
 
 ### Windows
 
 You can try to install and run this on Windows — it might work!
 
-1. Open Excel
-2. Go to **Insert → My Add-ins**
-3. Click **Upload My Add-in…**
-4. Select the `manifest.prod.xml` file you downloaded
-5. Click **Open Pi** in the ribbon
+### Desktop Excel
+Using PI for excel on Excel Desktop of windows
+Follow these steps to install Pi for Excel in the Excel desktop application using a shared folder manifest.
+1. Copy the manifest file to shared folder
+Place the manifest.xml file into shared folder. Like \\fileservername\PI for Excel
+2. Add the shared folder as a trusted add-in catalog
+1)	Open Excel.
+2)	Go to File -> Options -> Trust Center.
+3)	Click Trust Center Settings...
+4)	Select Trusted Add-in Catalogs.
+5)	In the Catalog URL box, paste the network path you copied earlier.
+6)	Click Add Catalog.
+7)	Check Show in Menu.
+8)	Click OK.
 
-> ⚠️ Use **Upload My Add-in…** for `manifest.prod.xml`.
-> Do **not** import it via **Manage → XML Expansion Packs** — that is a legacy Excel path and can surface misleading certificate errors for Office add-in manifests.
+3. Restart Excel
+Close Excel completely, then reopen it.
 
-For more detail, see [Microsoft's guide for Windows](https://learn.microsoft.com/en-us/office/dev/add-ins/testing/sideload-office-add-ins-for-testing).
+4. Install the add-in from the shared folder
+1)	In Excel, go to File -> Account -> Get Add-ins.
+2)	Switch to the Shared Folder tab.
+3)	Select Pi for Excel.
+4)	Click Add.
+Result
+After the add-in is installed, Pi for Excel should be available in Excel.
+  
 
-### Excel on the Web (Office Online)
+6, setup Intertek LLM, click AI for excel, click setting ICON, 
+Name: IntertekCHN or other words
+Endpoint is http://10.97.193.77:4000/v1
+Model: deepseek-r1-32b
+API Key: need to get from ITHelp
+ 
+7, for proxy setup, enable it, input https://pi4excelproxy.intertekchina.com:3003
 
-> **Community-contributed — not officially tested.** These steps were provided by a contributor and may not match every Office 365 tenant. If something looks different, see [Microsoft's sideloading guide for Office on the web](https://learn.microsoft.com/en-us/office/dev/add-ins/testing/sideload-office-add-ins-for-testing#manually-sideload-an-add-in-to-office-on-the-web).
-
-1. Open **[Excel (Web)](https://www.office.com/launch/excel)** in your browser  
-2. Select an existing workbook or create a new Excel file  
-3. In the **Home** tab (Start ribbon), click **Add-ins** on the right side  
-4. Click **More Add-ins**  
-5. Go to **My Add-ins**  
-6. Click **Manage My Add-ins**  
-7. Click **Upload My Add-in**  
-8. Upload the `manifest.prod.xml` file  
-
-> ⚠️ On Excel Web, the add-in can disappear after several days. If that happens, repeat the upload steps above.
-
----
 
 ## 3) First-run check
 
